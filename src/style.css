@@ -1,0 +1,208 @@
+/* 색·간격·모서리는 AMCO 디자인 시스템 tokens.css의 값을 그대로 옮겼다. */
+:root {
+  color-scheme: light dark;
+  --colorPrimary: #1677ff;
+  --colorPrimaryHover: #4096ff;
+  --colorPrimaryActive: #0958d9;
+  --colorLink: #1677ff;
+  --colorText: rgba(0, 0, 0, 0.88);
+  --colorTextSecondary: rgba(0, 0, 0, 0.65);
+  --colorTextHeading: rgba(0, 0, 0, 0.88);
+  --colorTextLightSolid: #fff;
+  --colorBgContainer: #ffffff;
+  --colorFillTertiary: rgba(0, 0, 0, 0.04);
+  --colorFillQuaternary: rgba(0, 0, 0, 0.02);
+  --colorFillAlter: rgba(0, 0, 0, 0.02);
+  --colorBorder: #d9d9d9;
+  --colorBorderSecondary: #f0f0f0;
+  --colorSplit: rgba(5, 5, 5, 0.06);
+  --controlItemBgHover: rgba(0, 0, 0, 0.04);
+  --controlOutline: rgba(5, 145, 255, 0.1);
+  --segBg: rgba(0, 0, 0, 0.04);
+  --segActive: #ffffff;
+  --selection: #bae0ff;
+
+  --borderRadiusSM: 4px;
+  --borderRadius: 6px;
+  --borderRadiusLG: 8px;
+  --controlHeight: 32px;
+
+  --font-sans: 'Noto Sans KR', 'Malgun Gothic', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'D2Coding', Consolas, 'SFMono-Regular', Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --colorPrimary: #1668dc;
+    --colorPrimaryHover: #3c89e8;
+    --colorPrimaryActive: #1554ad;
+    --colorLink: #65a9f3;
+    --colorText: rgba(255, 255, 255, 0.85);
+    --colorTextSecondary: rgba(255, 255, 255, 0.65);
+    --colorTextHeading: rgba(255, 255, 255, 0.85);
+    --colorBgContainer: #141414;
+    --colorFillTertiary: rgba(255, 255, 255, 0.08);
+    --colorFillQuaternary: rgba(255, 255, 255, 0.04);
+    --colorFillAlter: rgba(255, 255, 255, 0.04);
+    --colorBorder: #424242;
+    --colorBorderSecondary: #303030;
+    --colorSplit: rgba(253, 253, 253, 0.12);
+    --controlItemBgHover: rgba(255, 255, 255, 0.08);
+    --controlOutline: rgba(23, 117, 249, 0.31);
+    --segBg: rgba(255, 255, 255, 0.08);
+    --segActive: #424242;
+    --selection: #15417e;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--colorBgContainer);
+  color: var(--colorText);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+/* 위쪽 막대 */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--colorBorderSecondary);
+  user-select: none;
+}
+.file { display: flex; align-items: baseline; gap: 8px; flex-grow: 1; min-width: 0; }
+.file-name { font-weight: 600; color: var(--colorTextHeading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-status { font-size: 12px; line-height: 20px; color: var(--colorTextSecondary); white-space: nowrap; }
+
+.seg { display: inline-flex; padding: 2px; gap: 2px; border-radius: var(--borderRadius); background: var(--segBg); }
+.seg button {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--borderRadiusSM);
+  background: transparent;
+  color: var(--colorTextSecondary);
+  font: inherit;
+  cursor: pointer;
+}
+.seg button:hover { color: var(--colorText); }
+.seg button[aria-checked="true"] {
+  background: var(--segActive);
+  color: var(--colorText);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--controlHeight);
+  padding: 0 15px;
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadius);
+  background: var(--colorBgContainer);
+  color: var(--colorText);
+  font: inherit;
+  cursor: pointer;
+}
+.btn:hover { color: var(--colorPrimaryHover); border-color: var(--colorPrimaryHover); }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.btn.primary { background: var(--colorPrimary); border-color: var(--colorPrimary); color: var(--colorTextLightSolid); }
+.btn.primary:hover { background: var(--colorPrimaryHover); border-color: var(--colorPrimaryHover); color: var(--colorTextLightSolid); }
+.btn.primary:active { background: var(--colorPrimaryActive); }
+
+button:focus-visible { outline: 2px solid var(--colorPrimary); outline-offset: 1px; }
+
+/* 본문: 편집 · 미리보기 */
+.main { position: relative; flex: 1 1 0; min-height: 0; display: flex; }
+.pane { flex: 1 1 0; min-width: 0; overflow: auto; }
+.preview { border-left: 1px solid var(--colorBorderSecondary); }
+.main[data-mode="edit"] .preview { display: none; }
+.main[data-mode="preview"] .editor { display: none; }
+.main[data-mode="preview"] .preview { border-left: 0; }
+
+.editor .cm-editor { height: 100%; font-size: 14px; background: transparent; }
+.editor .cm-editor.cm-focused { outline: none; }
+.editor .cm-scroller { font-family: var(--font-code); line-height: 22px; padding: 20px 0; }
+.editor .cm-gutters { background: transparent; border: 0; color: var(--colorTextSecondary); }
+.editor .cm-lineNumbers .cm-gutterElement { min-width: 44px; padding: 0 4px 0 0; }
+.editor .cm-activeLineGutter { background: transparent; color: var(--colorText); font-weight: 600; }
+.editor .cm-activeLine { background: var(--colorFillTertiary); }
+.editor .cm-content { padding: 0 24px 0 8px; caret-color: var(--colorText); }
+.editor .cm-cursor { border-left-color: var(--colorText); border-left-width: 2px; }
+.editor .cm-selectionBackground,
+.editor .cm-focused .cm-selectionBackground { background: var(--selection) !important; }
+
+/* 미리보기 문서 */
+.doc { max-width: 720px; margin: 0 auto; padding: 32px 40px 64px; font-size: 16px; line-height: 28px; overflow-wrap: break-word; }
+.doc > :first-child { margin-top: 0; }
+.doc h1, .doc h2, .doc h3, .doc h4, .doc h5, .doc h6 { color: var(--colorTextHeading); font-weight: 600; margin: 32px 0 12px; }
+.doc h1 { font-size: 30px; line-height: 38px; }
+.doc h2 { font-size: 20px; line-height: 28px; padding-bottom: 8px; border-bottom: 1px solid var(--colorBorderSecondary); }
+.doc h3 { font-size: 17px; line-height: 26px; }
+.doc h4, .doc h5, .doc h6 { font-size: 16px; line-height: 24px; }
+.doc p, .doc ul, .doc ol, .doc blockquote, .doc pre, .doc table { margin: 0 0 16px; }
+.doc ul, .doc ol { padding-left: 24px; }
+.doc li.task { list-style: none; margin-left: -24px; }
+.doc li.task input { margin: 0 8px 0 0; vertical-align: -2px; }
+.doc blockquote { padding: 4px 16px; border-left: 4px solid var(--colorBorder); color: var(--colorTextSecondary); }
+.doc blockquote > :last-child { margin-bottom: 0; }
+.doc a { color: var(--colorLink); }
+.doc a:hover { color: var(--colorPrimaryHover); }
+.doc code { font-family: var(--font-code); font-size: 0.9em; padding: 1px 6px; border-radius: var(--borderRadiusSM); background: var(--colorFillTertiary); }
+.doc pre { padding: 16px; border-radius: var(--borderRadiusLG); background: var(--colorFillTertiary); overflow-x: auto; font-size: 14px; line-height: 22px; }
+.doc pre code { padding: 0; background: none; font-size: inherit; }
+.doc table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+.doc th, .doc td { border: 1px solid var(--colorBorder); padding: 8px 12px; text-align: left; }
+.doc th { background: var(--colorFillAlter); font-weight: 600; }
+.doc hr { border: 0; border-top: 1px solid var(--colorSplit); margin: 24px 0; }
+.doc img { max-width: 100%; }
+
+/* 파일 없이 실행했을 때 */
+.empty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--colorBgContainer);
+  cursor: text;
+}
+.main.is-empty .empty { display: flex; }
+.main.is-dragging .empty { display: flex; }
+.main.is-dragging .drop { border-color: var(--colorPrimary); }
+.drop {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 24px;
+  border: 1px dashed var(--colorBorder);
+  border-radius: var(--borderRadiusLG);
+  background: var(--colorFillAlter);
+  text-align: center;
+}
+.drop svg { width: 44px; height: 44px; fill: none; stroke: var(--colorPrimary); stroke-width: 1.5; stroke-linejoin: round; }
+.drop p { margin: 0; }
+.drop-title { font-size: 16px; line-height: 24px; color: var(--colorTextHeading); }
+.drop-sub, .keys { font-size: 12px; line-height: 20px; color: var(--colorTextSecondary); }
+.keys { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; margin-top: 12px !important; }
+kbd { font-family: var(--font-code); font-size: 12px; line-height: 20px; padding: 0 6px; border: 1px solid var(--colorBorder); border-bottom-width: 2px; border-radius: var(--borderRadiusSM); background: var(--colorFillQuaternary); }
+
+@media (max-width: 640px) {
+  .main[data-mode="split"] { flex-direction: column; }
+  .main[data-mode="split"] .preview { border-left: 0; border-top: 1px solid var(--colorBorderSecondary); }
+  .doc { padding: 24px 20px 48px; }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>마크다운</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="file">
+      <span id="file-name" class="file-name">제목 없음.md</span>
+      <span id="file-status" class="file-status"></span>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="보기 방식">
+      <button type="button" role="radio" data-mode="edit" aria-checked="false">편집</button>
+      <button type="button" role="radio" data-mode="split" aria-checked="true">분할</button>
+      <button type="button" role="radio" data-mode="preview" aria-checked="false">보기</button>
+    </div>
+    <button id="open" class="btn" type="button" title="열기 (Ctrl+O)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v1H7.5a2 2 0 0 0-1.9 1.4L3 19V7z"/><path d="M5.6 11.4A2 2 0 0 1 7.5 10H21l-2.6 8.6A2 2 0 0 1 16.5 20H3l2.6-8.6z"/></svg>
+      열기
+    </button>
+    <button id="save" class="btn primary" type="button" title="저장 (Ctrl+S)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3"/><path d="M7 21v-7h10v7"/></svg>
+      저장
+    </button>
+  </header>
+
+  <main id="main" class="main" data-mode="split">
+    <section id="editor" class="pane editor" aria-label="마크다운 원문"></section>
+    <section class="pane preview" aria-label="미리보기">
+      <article id="preview" class="doc"></article>
+    </section>
+
+    <div id="empty" class="empty">
+      <div class="drop">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5l2.5-8z"/></svg>
+        <p class="drop-title">.md 파일을 여기에 끌어다 놓거나 바로 입력하세요</p>
+        <p class="drop-sub">탐색기에서 .md 파일을 더블클릭해도 이 창으로 열립니다</p>
+        <p class="keys">
+          <span><kbd>Ctrl</kbd> + <kbd>O</kbd> 열기</span>
+          <span><kbd>Ctrl</kbd> + <kbd>S</kbd> 저장</span>
+          <span><kbd>Ctrl</kbd> + <kbd>/</kbd> 보기 방식 바꾸기</span>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
