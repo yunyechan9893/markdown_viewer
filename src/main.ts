@@ -77,14 +77,62 @@ const isDirty = () => currentText() !== savedText;
 
 const md = new MarkdownIt({ html: true, linkify: true });
 
+// DOMPurify 기본 허용 주소에 "C:/…" 같은 윈도우 드라이브 경로를 더한다. (기본값은 이 경로의 src를 지워 버린다.)
+const ALLOWED_URI =
+  /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[a-z]:[\\/]|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+
 function render() {
   let html = md.render(currentText());
   // 할 일 목록: "- [ ] 일" / "- [x] 일"을 체크 상자로 바꾼다.
   html = html.replace(/<li>(\s*<p>)?\[([ xX])\][ \t]/g, (_m, p: string | undefined, mark: string) =>
     `<li class="task">${p ?? ""}<input type="checkbox" disabled${mark === " " ? "" : " checked"}> `,
   );
-  previewEl.innerHTML = DOMPurify.sanitize(html);
+  previewEl.innerHTML = DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP: ALLOWED_URI });
+  for (const img of previewEl.querySelectorAll("img")) resolveImage(img);
 }
+
+// 내 컴퓨터에 있는 그림은 문서 위치를 기준으로 경로를 찾아 보여 준다.
+function resolveImage(img: HTMLImageElement) {
+  const src = img.getAttribute("src") ?? "";
+  if (!src || /^(https?:|data:|blob:|asset:)/i.test(src)) return;
+  let path: string;
+  try {
+    path = decodeURI(src).replace(/^file:\/\/\/?/i, "");
+  } catch {
+    return;
+  }
+  if (!/^([A-Za-z]:[\\/]|[\\/])/.test(path)) {
+    if (!filePath) return;
+    path = `${filePath.replace(/[\\/][^\\/]*$/, "")}/${path}`;
+  }
+  img.removeAttribute("src");
+  const cached = imageUrls.get(path);
+  if (cached) {
+    img.src = cached;
+    return;
+  }
+  invoke<ArrayBuffer>("read_image", { path })
+    .then((bytes) => {
+      const ext = (path.split(".").pop() ?? "").toLowerCase();
+      const type = IMAGE_TYPES[ext] ?? "application/octet-stream";
+      const url = URL.createObjectURL(new Blob([bytes], { type }));
+      imageUrls.set(path, url);
+      img.src = url;
+    })
+    .catch(() => {});
+}
+
+const imageUrls = new Map<string, string>();
+const IMAGE_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  svg: "image/svg+xml",
+  bmp: "image/bmp",
+  avif: "image/avif",
+};
 
 let renderTimer: number | undefined;
 function scheduleRender() {
@@ -208,6 +256,35 @@ window.addEventListener(
 
 // ---------- 끌어다 놓기 ----------
 
+const DOC_RE = /\.(md|markdown|txt)$/i;
+const IMAGE_RE = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
+
+// 문서 파일 기준의 상대 경로를 만든다. 문서가 아직 저장되지 않았거나 드라이브가 다르면 절대 경로를 쓴다.
+function imageLink(imagePath: string) {
+  const img = imagePath.replace(/\\/g, "/");
+  if (!filePath) return img;
+  const doc = filePath.replace(/\\/g, "/").split("/");
+  doc.pop();
+  const parts = img.split("/");
+  let i = 0;
+  while (i < doc.length && i < parts.length - 1 && doc[i].toLowerCase() === parts[i].toLowerCase()) i++;
+  if (i === 0) return img;
+  return [...doc.slice(i).map(() => ".."), ...parts.slice(i)].join("/");
+}
+
+function insertImages(paths: string[]) {
+  const text = paths
+    .map((p) => `![${baseName(p).replace(/\.[^.]+$/, "")}](${encodeURI(imageLink(p))})`)
+    .join("\n");
+  const at = view.state.selection.main.head;
+  view.dispatch({
+    changes: { from: at, insert: text },
+    selection: { anchor: at + text.length },
+    scrollIntoView: true,
+  });
+  view.focus();
+}
+
 getCurrentWebview().onDragDropEvent(async (event) => {
   const p = event.payload;
   if (p.type === "enter" || p.type === "over") {
@@ -215,11 +292,16 @@ getCurrentWebview().onDragDropEvent(async (event) => {
     return;
   }
   mainEl.classList.remove("is-dragging");
-  if (p.type !== "drop" || p.paths.length === 0) return;
-  const path = p.paths.find((f) => /\.(md|markdown|txt)$/i.test(f)) ?? p.paths[0];
-  if (await confirmDiscard("저장하지 않은 내용이 있습니다. 버리고 이 파일을 열까요?", "버리고 열기")) {
-    await loadFile(path);
+  if (p.type !== "drop") return;
+  const doc = p.paths.find((f) => DOC_RE.test(f));
+  if (doc) {
+    if (await confirmDiscard("저장하지 않은 내용이 있습니다. 버리고 이 파일을 열까요?", "버리고 열기")) {
+      await loadFile(doc);
+    }
+    return;
   }
+  const images = p.paths.filter((f) => IMAGE_RE.test(f));
+  if (images.length > 0) insertImages(images);
 });
 
 // ---------- 닫기 ----------
